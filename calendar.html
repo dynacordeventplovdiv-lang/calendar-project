@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <link rel="stylesheet" href="{% static 'events/css/main.min.css' %}" />
+    <script src="{% static 'events/js/main.min.js' %}"></script>
+    <script src="{% static 'events/js/interaction.min.js' %}"></script>
+    <title>ERP Calendar</title>
+    <style>
+        /* Може да добавиш малко padding за календара */
+        #calendar {
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id='calendar'></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                editable: true,  // позволява drag & drop
+                selectable: true,
+                events: [
+                    {% for event in events %}
+                    {
+                        title: '{{ event.name }} ({{ event.client.company_name }})',
+                        start: '{{ event.start_date|date:"Y-m-d\\TH:i:s" }}',
+                        end: '{{ event.end_date|date:"Y-m-d\\TH:i:s" }}',
+                        color: '{% if event.status == "confirmed" %}green{% elif event.status == "draft" %}yellow{% elif event.status == "cancelled" %}red{% else %}blue{% endif %}'
+                    },
+                    {% endfor %}
+                ]
+            });
+
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
